@@ -4,6 +4,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/errortracking"
 	"github.com/livekit/protocol/livekit"
 	"github.com/pion/webrtc/v4"
 	log "github.com/sirupsen/logrus"
@@ -28,6 +29,8 @@ type Config struct {
 	Log        LogConfig  `yaml:"log"`
 
 	Constraints Constraints `yaml:"constraints"`
+
+	Sentry errortracking.Config `yaml:"sentry"`
 }
 
 func (cfg *Config) GetDefaults() *Config {
@@ -106,6 +109,13 @@ func (cfg *Config) SetDefaults() {
 			VideoQuality:       livekit.VideoQuality_LOW.String(),
 			Sources:            []string{"camera"},
 		},
+	}
+	cfg.Sentry = errortracking.Config{
+		Level:           "error",
+		BreadcrumbLevel: "info",
+		Anonymise:       "mask",
+		Environment:     "production",
+		SampleRate:      "1.0",
 	}
 }
 

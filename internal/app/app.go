@@ -12,6 +12,7 @@ import (
 	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/appstats"
 	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/config"
 	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/diskpressure"
+	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/errortracking"
 	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/pubsub"
 	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/server"
 	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/types"
@@ -75,6 +76,8 @@ func init() {
 	}
 
 	Init()
+	errortracking.Init(app.Name, cfg.Sentry)
+	defer errortracking.Close()
 	Run()
 }
 
@@ -229,6 +232,7 @@ func shutdown(code int) {
 		}
 	}
 
+	errortracking.Flush()
 	os.Exit(code)
 }
 

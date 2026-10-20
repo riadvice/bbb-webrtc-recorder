@@ -97,3 +97,12 @@ constraints:
     videoQuality: LOW
     # LiveKit track sources to cap: camera, screen_share
     sources: [camera]
+
+# Error reporting to Sentry (dsn empty = off); BBB_SENTRY_* environment variables win.
+sentry:
+  dsn: ""
+  level: error
+  breadcrumbLevel: info
+  anonymise: mask
+  environment: production
+  sampleRate: 1.0
