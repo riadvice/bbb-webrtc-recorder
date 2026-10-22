@@ -11,6 +11,7 @@ import (
 	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/config"
 	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/pubsub"
 	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/pubsub/events"
+	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/telemetry"
 	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/types"
 	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/webrtc"
 	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/webrtc/livekit"
@@ -46,6 +47,8 @@ func NewServer(cfg *config.Config, ps pubsub.PubSub) *Server {
 func (s *Server) HandlePubSubMsg(ctx context.Context, msg []byte) {
 	log.Trace(string(msg))
 	event := events.Decode(msg)
+	ctx, span := telemetry.StartRequestSpan(ctx, msg, event)
+	defer span.End()
 	s.HandlePubSubEvent(ctx, event)
 }
 

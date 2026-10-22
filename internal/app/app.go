@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/signal"
@@ -14,6 +15,7 @@ import (
 	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/diskpressure"
 	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/pubsub"
 	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/server"
+	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/telemetry"
 	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/types"
 	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/webrtc/livekit"
 	"github.com/bigbluebutton/bbb-webrtc-recorder/internal/webrtc/recorder"
@@ -89,9 +91,14 @@ func Init() {
 
 func Run() {
 	appstats.Init()
+	telemetry.Start(context.Background())
+
+	// Prometheus and OTLP are enabled separately; both read the metrics registered here.
+	if cfg.Prometheus.Enable || telemetry.Enabled() {
+		appstats.RegisterMetrics()
+	}
 
 	if cfg.Prometheus.Enable {
-		appstats.RegisterMetrics()
 		appstats.ServePromMetrics(cfg.Prometheus)
 	}
 
@@ -229,6 +236,7 @@ func shutdown(code int) {
 		}
 	}
 
+	telemetry.Shutdown()
 	os.Exit(code)
 }
 
